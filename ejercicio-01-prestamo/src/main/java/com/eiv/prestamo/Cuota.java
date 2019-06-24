@@ -62,18 +62,23 @@ public class Cuota {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Cuota other = (Cuota) obj;
         if (nro == null) {
-            if (other.nro != null)
+            if (other.nro != null) {
                 return false;
-        } else if (!nro.equals(other.nro))
+            }
+        } else if (!nro.equals(other.nro)) {
             return false;
+        }
         return true;
     }
 
