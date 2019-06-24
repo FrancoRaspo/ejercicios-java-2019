@@ -51,15 +51,14 @@ public class App {
 
         });        
     }
-        
+    
     public Optional<PrestamoDatos> cargarDatos() {
         
-        try (Scanner scanner = new Scanner(System.in)) {
+        try(Scanner scanner = new Scanner(System.in)) {
             
-            System.out.println("Ingrese sistema (1)FRANCES o (2)ALEMAN: ");
+        	System.out.println("Ingrese sistema (1)FRANCES o (2)ALEMAN: ");
             Integer sistema = scanner.nextInt();
-            PrestamoDatos.SistemaAmortizacionEnum sistemacalculo = 
-                    PrestamoDatos.SistemaAmortizacionEnum.of(sistema);
+            PrestamoDatos.SistemaAmortizacionEnum sistemacalculo=PrestamoDatos.SistemaAmortizacionEnum.of(sistema);
             
             System.out.println("Ingrese capital del prestamo: ");
             BigDecimal capital = scanner.nextBigDecimal();
@@ -68,8 +67,8 @@ public class App {
             Integer cuotas = scanner.nextInt();
                          
 
-            System.out.println("Ingrese tasa nominal anual: ");
-            BigDecimal tna = scanner.nextBigDecimal();
+        	System.out.println("Ingrese tasa nominal anual: ");
+        	BigDecimal tna = scanner.nextBigDecimal();
 
             
             PrestamoDatos prestamoDatos = new PrestamoDatos(capital, cuotas, tna, sistemacalculo);
@@ -90,49 +89,19 @@ public class App {
     
     public List<Cuota> calcularCuotas(PrestamoDatos prestamoDatos) {
         
-        Metodo metodo = null;
-
-        if (prestamoDatos.getSistema() == PrestamoDatos.SistemaAmortizacionEnum.FRANCES) {
-            metodo = new MetodoFrancesImpl(); 
-        }
-        else if (prestamoDatos.getSistema() == PrestamoDatos.SistemaAmortizacionEnum.ALEMAN) {
-            	metodo = new MetodoAlemanImpl();
-        }
-
-        return metodo.calcularCuotas(prestamoDatos);
+    	Metodo metodo=null;
+    	
+    	if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.FRANCES) {
+    		metodo = new MetodoFrancesImpl();
+    	}
+    	else if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.ALEMAN) {
+    		metodo = new MetodoAlemanImpl();
+    		
+    	}
+    	
+    	return metodo.calcularCuotas(prestamoDatos);
         
-        BigDecimal razon = prestamoDatos.getTna()
-                .multiply(DIAS)
-                .divide(CIEN.multiply(DIAS_ANIO), 6, RoundingMode.HALF_UP);
-        
-        BigDecimal valorCuota = calculoValorCuota(prestamoDatos);
-        BigDecimal saldoCapital = prestamoDatos.getCapital();
-        
-        LOG.debug("Valor de cuota calculada: " + valorCuota);
-        
-        List<Cuota> cuotas = new ArrayList<>();
-        
-        for (int i = 0; i < nrocuotas; i++) {
-            
-            BigDecimal interes = saldoCapital.multiply(razon)
-                    .setScale(2, RoundingMode.HALF_UP);
-            
-            BigDecimal capitalCuota = valorCuota.subtract(interes);
-            
-            saldoCapital = saldoCapital.subtract(capitalCuota);
-            
-            Cuota cuota = new Cuota(
-                    i + 1, 
-                    capitalCuota, 
-                    interes, 
-                    saldoCapital);
-            
-            cuotas.add(cuota);
-            
-            LOG.debug("Procesada cuota: " + (i + 1));
-        }
-        
-        return cuotas;
+       
     }
     
     public BigDecimal calculoValorCuota(PrestamoDatos prestamoDatos) {
