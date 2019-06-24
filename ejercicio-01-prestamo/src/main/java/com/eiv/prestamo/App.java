@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.eiv.prestamo.metodos.Metodo;
+import com.eiv.prestamo.metodos.MetodoAlemanImpl;
 import com.eiv.prestamo.metodos.MetodoFrancesImpl;
 
 public class App {
@@ -55,16 +56,22 @@ public class App {
         
         try (Scanner scanner = new Scanner(System.in)) {
             
+        	System.out.println("Ingrese sistema (1)FRANCES o (2)ALEMAN: ");
+            Integer sistema = scanner.nextInt();
+            PrestamoDatos.SistemaAmortizacionEnum sistemacalculo=PrestamoDatos.SistemaAmortizacionEnum.of(sistema);
+            
             System.out.println("Ingrese capital del prestamo: ");
             BigDecimal capital = scanner.nextBigDecimal();
             
             System.out.println("Ingrese cantidad de cuotas del prestamo: ");
             Integer cuotas = scanner.nextInt();
+                         
+
+        	System.out.println("Ingrese tasa nominal anual: ");
+        	BigDecimal tna = scanner.nextBigDecimal();
+
             
-            System.out.println("Ingrese tasa nominal anual: ");
-            BigDecimal tna = scanner.nextBigDecimal();
-            
-            PrestamoDatos prestamoDatos = new PrestamoDatos(capital, cuotas, tna);
+            PrestamoDatos prestamoDatos = new PrestamoDatos(capital, cuotas, tna, sistemacalculo);
             PrestamoDatos.esValido(prestamoDatos);
             
             return Optional.of(prestamoDatos);
@@ -82,7 +89,17 @@ public class App {
     
     public List<Cuota> calcularCuotas(PrestamoDatos prestamoDatos) {
         
-        int nrocuotas = prestamoDatos.getCuotas();
+    	Metodo metodo=null;
+    	
+    	if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.FRANCES) {
+    		metodo = new MetodoFrancesImpl();
+    	}
+    	else if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.ALEMAN) {
+    		metodo = new MetodoAlemanImpl();
+    		
+    	}
+    	
+    	return metodo.calcularCuotas(prestamoDatos);
         
         BigDecimal razon = prestamoDatos.getTna()
                 .multiply(DIAS)
@@ -119,8 +136,17 @@ public class App {
     }
     
     public BigDecimal calculoValorCuota(PrestamoDatos prestamoDatos) {
+    	Metodo metodo=null;
+    	
+    	if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.FRANCES) {
+    		metodo = new MetodoFrancesImpl();
+    	}
+    	else if (prestamoDatos.getSistema()==PrestamoDatos.SistemaAmortizacionEnum.ALEMAN) {
+    		metodo = new MetodoAlemanImpl();
+    		
+    	}
+    	
+    	return metodo.calculoValorCuota(prestamoDatos);
         
-        Metodo metodo = new MetodoFrancesImpl();
-        return metodo.calculoValorCuota(prestamoDatos);
     }
 }
